@@ -1,0 +1,158 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Projeto Casa</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f1f4f2;color:#24332d}
+header{background:#173b35;color:white;padding:22px;text-align:center}
+main{max-width:700px;margin:auto;padding:15px}
+.card{background:white;padding:18px;margin-bottom:15px;border-radius:14px;box-shadow:0 2px 8px #0001}
+h2{font-size:19px}
+label{display:block;margin:12px 0 5px;font-weight:bold}
+input,select{width:100%;padding:12px;border:1px solid #ccc;border-radius:8px;font-size:16px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+button{width:100%;padding:14px;margin-top:14px;background:#176b55;color:white;border:0;border-radius:9px;font-size:16px;font-weight:bold}
+.result{background:#e7f3ec;padding:15px;border-radius:10px;margin-top:12px}
+.big{font-size:26px;font-weight:bold;color:#176b55}
+small{opacity:.8}
+</style>
+</head>
+<body>
+
+<header>
+<h1>🏠 Projeto Casa</h1>
+<p>Planta baixa e calculadora de materiais</p>
+</header>
+
+<main>
+
+<section class="card">
+<h2>1. Novo projeto</h2>
+<label>Nome da obra</label>
+<input id="nome" value="Minha casa">
+</section>
+
+<section class="card">
+<h2>2. Medidas da construção</h2>
+<div class="grid">
+<div>
+<label>Largura (m)</label>
+<input id="larg" type="number" value="8" min="0.1">
+</div>
+<div>
+<label>Comprimento (m)</label>
+<input id="comp" type="number" value="10" min="0.1">
+</div>
+<div>
+<label>Altura das paredes (m)</label>
+<input id="alt" type="number" value="2.8" min="0.1">
+</div>
+<div>
+<label>Espessura (cm)</label>
+<input id="esp" type="number" value="14">
+</div>
+</div>
+
+<label>Área de portas e janelas (m²)</label>
+<input id="vaos" type="number" value="8" min="0">
+
+</section>
+
+<section class="card">
+<h2>3. Tipo de bloco</h2>
+<label>Escolha o bloco</label>
+<select id="bloco">
+<option value="29,19">Cerâmico 29 x 19 cm</option>
+<option value="39,19">Concreto 39 x 19 cm</option>
+<option value="59,25">Concreto celular 59 x 25 cm</option>
+<option value="custom">Personalizado</option>
+</select>
+
+<div class="grid">
+<div>
+<label>Comprimento (cm)</label>
+<input id="bc" type="number" value="29">
+</div>
+<div>
+<label>Altura (cm)</label>
+<input id="ba" type="number" value="19">
+</div>
+</div>
+
+<label>Junta de assentamento (cm)</label>
+<input id="junta" type="number" value="1" step="0.1">
+</section>
+
+<section class="card">
+<h2>4. Calculadora de materiais</h2>
+<button onclick="calcular()">CALCULAR MATERIAIS</button>
+<div id="saida" class="result">
+Preencha as medidas e toque em calcular.
+</div>
+</section>
+
+<section class="card">
+<h2>5. Próximas funções</h2>
+<ul>
+<li>Desenhar planta baixa</li>
+<li>Criar cômodos e divisórias</li>
+<li>Adicionar portas e janelas</li>
+<li>Calcular pisos e revestimentos</li>
+<li>Calcular argamassa e reboco</li>
+<li>Calcular telhado e cobertura</li>
+<li>Salvar projetos</li>
+<li>Exportar relatórios</li>
+</ul>
+</section>
+
+</main>
+
+<script>
+const $=id=>document.getElementById(id);
+
+$('bloco').addEventListener('change',()=>{
+let v=$('bloco').value;
+if(v!=='custom'){
+let a=v.split(',');
+$('bc').value=a[0];
+$('ba').value=a[1];
+}
+});
+
+function calcular(){
+
+let w=+$('larg').value;
+let l=+$('comp').value;
+let h=+$('alt').value;
+let v=+$('vaos').value;
+let bc=+$('bc').value;
+let ba=+$('ba').value;
+let j=+$('junta').value;
+
+if(![w,l,h,bc,ba].every(x=>Number.isFinite(x)&&x>0)||v<0||j<0){
+$('saida').textContent='Confira as medidas informadas.';
+return;
+}
+
+let bruto=2*(w+l)*h;
+let liquido=Math.max(0,bruto-v);
+let consumo=10000/((bc+j)*(ba+j));
+let blocos=Math.ceil(liquido*consumo*1.05);
+
+$('saida').innerHTML=`
+<p>Projeto: <b>${$('nome').value||'Minha casa'}</b></p>
+<p>Área bruta: <b>${bruto.toFixed(2)} m²</b></p>
+<p>Área descontando portas e janelas: <b>${liquido.toFixed(2)} m²</b></p>
+<p>Consumo por m²: <b>${consumo.toFixed(2)} blocos</b></p>
+<div class="big">${blocos.toLocaleString('pt-BR')} blocos</div>
+<p>Estimativa com 5% de reserva.</p>
+`;
+}
+</script>
+
+</body>
+</html>
